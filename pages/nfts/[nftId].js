@@ -1,12 +1,13 @@
 import Header from '../../components/Header'
 import {useEffect, useMemo, useState} from 'react'
 import {useWeb3} from '@3rdweb/hooks'
-import {ThirdwebSDK} from '@3rdweb/sdk'
+//import {ThirdwebSDK} from '@3rdweb/sdk'
 import {useRouter} from 'next/router'
 import NFTImage from '../../components/nft/NFTImage'
 import GeneralDetails from '../../components/nft/GeneralDetails'
 import ItemActivity from '../../components/nft/ItemActivity'
 import Purchase from '../../components/nft/Purchase'
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
 const style={
   wrapper: `flex flex-col items-center container-lg text-[#e5e8eb]`,
@@ -24,10 +25,8 @@ const Nft = () =>{
 
   const nftModule = useMemo(() => {
     if(!provider) return
-    const sdk = new ThirdwebSDK(provider.getSigner(),'https://eth-rinkeby.alchemyapi.io/v2/COTicZjustgd98j5pxQX6PLuykUCb2YE')
-    return sdk.getNFTModule(
-      '0xA26c2d451BE3717973f25De833f537313B314A5a'//bored ape yatch club address
-    )
+    const sdk = new ThirdwebSDK("rinkeby")
+    return sdk.getNFTCollection("0xA26c2d451BE3717973f25De833f537313B314A5a")//bored ape yatch club address
   }, [provider])
 
   //get all nfts in the colleciton
@@ -38,18 +37,15 @@ const Nft = () =>{
       const selectedNftItem = nftsArray.find(
         (nft)=> nft.id === router.query.nftId
       )
-
+      
       setSelectedNft(selectedNftItem)
     })()
   }, [nftModule])
   
-   const marketPlaceModule=useMemo(()=>{
+   const marketPlaceModule = useMemo(()=>{
      if(!provider) return
-     const sdk = new ThirdwebSDK(provider.getSigner(),
-     'https://eth-rinkeby.alchemyapi.io/v2/COTicZjustgd98j5pxQX6PLuykUCb2YE')
-     return sdk.getMarketplaceModule(
-       '0x74E0447189A60F573e12800D1a0294aE34F42291'//marketplace address
-     )
+     const sdk = new ThirdwebSDK("rinkeby")
+     return sdk.getMarketplace('0x74E0447189A60F573e12800D1a0294aE34F42291')//marketplace address
    },[provider])
 
    useEffect(()=>{

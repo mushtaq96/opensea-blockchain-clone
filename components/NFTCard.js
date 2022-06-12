@@ -41,6 +41,7 @@ const NFTCard = ({nftItem, title, listings}) =>{
       setPrice(listing.buyoutCurrencyValuePerToken.displayValue)
     }
   }, [listings, nftItem])
+  console.log('this are the listing', listings)
 
   //return <img src={nftItem.image} alt="" />
   return (

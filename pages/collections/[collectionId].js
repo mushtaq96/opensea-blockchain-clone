@@ -3,13 +3,13 @@ import {useRouter} from 'next/router'
 import Link from 'next/link'
 import {useWeb3} from '@3rdweb/hooks'
 import {client} from '../../lib/sanityClient'
-import {ThirdwebSDK} from '@3rdweb/sdk'
+//import {ThirdwebSDK} from '@3rdweb/sdk'
 import Header from '../../components/Header'
 import {CgWebsite} from 'react-icons/cg' 
 import {AiOutlineInstagram, AiOutlineTwitter} from 'react-icons/ai'
 import {HiDotsVertical} from 'react-icons/hi' 
 import NFTCard from '../../components/NFTCard'
-
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
 const style = {
   bannerImageContainer: `h-[20vh] w-screen overflow-hidden flex justify-center items-center`,
@@ -35,55 +35,35 @@ const style = {
 
 const Collection = () =>{
   const router = useRouter()
-  const {provider} = useWeb3() //?
+  //const {provider} = useWeb3() //?
   const {collectionId} = router.query
   const [collection, setCollection] = useState({})
   const [nfts, setNfts] = useState([])
   const [listings, setListings] = useState([])
 
 
-  
-  const nftModule = useMemo(() => {
-    if(!provider) return
-
-    const sdk = new ThirdwebSDK(provider.getSigner(),
-    'https://eth-rinkeby.alchemyapi.io/v2/COTicZjustgd98j5pxQX6PLuykUCb2YE')
-    console.log(sdk, '🔥')
-    return sdk.getNFTModule(collectionId)
-  },[provider])
-
   //get all nfts in the collection
-  useEffect(()=>{
-    if(!nftModule) return
+  useEffect(() => {
     ;(async () =>{
-      const nfts = await nftModule.getAll()
-
+      const sdk = new ThirdwebSDK("rinkeby")
+      const contract = sdk.getNFTCollection("0xA26c2d451BE3717973f25De833f537313B314A5a")//NFT collection bored ape address
+      const nfts = await contract.getAll()
+      console.log('dfdf', nfts)
       setNfts(nfts)
     })()
-  },[nftModule])
+  },[])
 
   const marketPlaceModule = useMemo(()=>{
-    if(!provider) return
-    const sdk = new ThirdwebSDK(
-      provider.getSigner(),
-      'https://eth-rinkeby.alchemyapi.io/v2/COTicZjustgd98j5pxQX6PLuykUCb2YE'
-    )
-    return sdk.getMarketplaceModule(
-      '0x74E0447189A60F573e12800D1a0294aE34F42291'
-    )
-  },[provider])
+    //if(!provider) return
+    const sdk = new ThirdwebSDK("rinkeby")
+    
+    const a = sdk.getMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")//marketplace address
+  },[])
 
-  //get all listings in the collection
-  useEffect(()=>{
-    if(!marketPlaceModule) return
-    ;(async()=>{
-      setListings(await marketPlaceModule.getAllListings())
-    })()
-  },[marketPlaceModule])
+
 
   const fetchCollectionData = async(sanityClient = client) => {
     console.log("this is "+ collectionId)
-  
     const query = `*[_type == "marketItems" && contractAddress == "${collectionId}"]{
       "imageUrl":profileImage.asset->url,
       "bannerImageUrl":bannerImage.asset->url,
@@ -109,8 +89,7 @@ const Collection = () =>{
   },[collectionId])
   //every time a new collection is checked out this runs
 
-  console.log(router.query)
-  console.log(router.query.collectionId)
+  // console.log(router.query.collectionId)
   return (
     <div className="overflow-hidden">
       <Header/>
@@ -214,7 +193,7 @@ const Collection = () =>{
           {nfts.map((nftItem, id) => (
             <NFTCard
               key={id}
-              nftItem={nftItem}
+              nftItem={nftItem.metadata}
               title={collection?.title}
               listings={listings}
             />
