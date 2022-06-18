@@ -1,13 +1,13 @@
-import React, {useEffect, useState, useMemo} from 'react'
-import {useRouter} from 'next/router'
+import React, { useEffect, useState, useMemo } from 'react'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
-import {useWeb3} from '@3rdweb/hooks'
-import {client} from '../../lib/sanityClient'
+import { useWeb3 } from '@3rdweb/hooks'
+import { client } from '../../lib/sanityClient'
 //import {ThirdwebSDK} from '@3rdweb/sdk'
 import Header from '../../components/Header'
-import {CgWebsite} from 'react-icons/cg' 
-import {AiOutlineInstagram, AiOutlineTwitter} from 'react-icons/ai'
-import {HiDotsVertical} from 'react-icons/hi' 
+import { CgWebsite } from 'react-icons/cg'
+import { AiOutlineInstagram, AiOutlineTwitter } from 'react-icons/ai'
+import { HiDotsVertical } from 'react-icons/hi'
 import NFTCard from '../../components/NFTCard'
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
@@ -33,37 +33,46 @@ const style = {
   description: `text-[#8a939b] text-xl w-max-1/4 flex-wrap mt-4`,
 }
 
-const Collection = () =>{
+const Collection = () => {
   const router = useRouter()
   //const {provider} = useWeb3() //?
-  const {collectionId} = router.query
+  const { collectionId } = router.query
   const [collection, setCollection] = useState({})
   const [nfts, setNfts] = useState([])
   const [listings, setListings] = useState([])
 
 
-  //get all nfts in the collection
+  //get all nfts and listed nfts in the collection
   useEffect(() => {
-    ;(async () =>{
+    ; (async () => {
       const sdk = new ThirdwebSDK("rinkeby")
       const contract = sdk.getNFTCollection("0xA26c2d451BE3717973f25De833f537313B314A5a")//NFT collection bored ape address
       const nfts = await contract.getAll()
-      console.log('dfdf', nfts)
+      // console.log('dfdf', nfts)
       setNfts(nfts)
+
+      const listingsContract = sdk.getMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")//Marketplace address
+      const listings = await listingsContract.getAllListings()
+      //console.log('LISTINGs', listings)
+      setListings(listings)
     })()
-  },[])
+  }, [])
 
-  const marketPlaceModule = useMemo(()=>{
-    //if(!provider) return
-    const sdk = new ThirdwebSDK("rinkeby")
-    
-    const a = sdk.getMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")//marketplace address
-  },[])
+  // useEffect{
+
+  //   ;(async () =>{
+  //     const sdk = new ThirdwebSDK("rinkeby")
+  //     const contract = sdk.getMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")//NFT collection bored ape address
+  //     const listings = await contract.getAllListings()
+  //     console.log('LISTINGs', nfts)
+  //     setListings(listings)
+  //   })()
+  // },[])
 
 
 
-  const fetchCollectionData = async(sanityClient = client) => {
-    console.log("this is "+ collectionId)
+  const fetchCollectionData = async (sanityClient = client) => {
+    // console.log("this is " + collectionId)
     const query = `*[_type == "marketItems" && contractAddress == "${collectionId}"]{
       "imageUrl":profileImage.asset->url,
       "bannerImageUrl":bannerImage.asset->url,
@@ -77,24 +86,23 @@ const Collection = () =>{
     }`
 
     const collectionData = await sanityClient.fetch(query)
-    
-    console.log(collectionData, '🔥')
+
+    //console.log(collectionData, '🔥')
 
     //the query returns one object inside of an array
     await setCollection(collectionData[0])
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchCollectionData()
-  },[collectionId])
+  }, [collectionId])
   //every time a new collection is checked out this runs
 
-  // console.log(router.query.collectionId)
   return (
     <div className="overflow-hidden">
-      <Header/>
+      <Header />
       <div className={style.bannerImageContainer}>
-        <img 
+        <img
           className={style.bannerImage}
           alt="banner"
           src={
@@ -106,12 +114,12 @@ const Collection = () =>{
       </div>
       <div className={style.infoContainer}>
         <div className={style.midRow}>
-          <img 
+          <img
             className={style.profileImg}
             src={
-              collection?.imageUrl 
-              ? collection.imageUrl 
-              : 'https://via.placeholder.com/200'
+              collection?.imageUrl
+                ? collection.imageUrl
+                : 'https://via.placeholder.com/200'
             }
             alt="profile image"
           />
@@ -121,32 +129,32 @@ const Collection = () =>{
             <div className={style.socialIconsWrapper}>
               <div className={style.socialIconsContent}>
                 <div className={style.socialIcon}>
-                  <CgWebsite/>
+                  <CgWebsite />
                 </div>
-                <div className={style.divider}/>
+                <div className={style.divider} />
                 <div className={style.socialIcon}>
-                  <AiOutlineInstagram/>
+                  <AiOutlineInstagram />
                 </div>
-                <div className={style.divider}/>
+                <div className={style.divider} />
                 <div className={style.socialIcon}>
-                  <AiOutlineTwitter/>
+                  <AiOutlineTwitter />
                 </div>
-                <div className={style.divider}/>
+                <div className={style.divider} />
                 <div className={style.socialIcon}>
-                  <HiDotsVertical/>
+                  <HiDotsVertical />
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div className={style.midRow}>
-            <div className={style.title}>{collection?.title}</div>
+          <div className={style.title}>{collection?.title}</div>
         </div>
         <div className={style.midRow}>
-            <div className={style.createdBy}>
-              Created by {' '}
-              <span className="text-[#2081e2]">{collection?.creator}</span>
-            </div>
+          <div className={style.createdBy}>
+            Created by {' '}
+            <span className="text-[#2081e2]">{collection?.creator}</span>
+          </div>
         </div>
         <div className={style.midRow}>
           <div className={style.statsContainer}>
@@ -156,7 +164,7 @@ const Collection = () =>{
             </div>
             <div className={style.collectionStat}>
               <div className={style.statValue}>
-                {collection?.allOwners ? collection.allOwners.length:''}
+                {collection?.allOwners ? collection.allOwners.length : ''}
               </div>
               <div className={style.statName}>owners</div>
             </div>
@@ -190,14 +198,14 @@ const Collection = () =>{
       </div>
 
       <div className="flex flex-wrap">
-          {nfts.map((nftItem, id) => (
-            <NFTCard
-              key={id}
-              nftItem={nftItem.metadata}
-              title={collection?.title}
-              listings={listings}
-            />
-          ))}
+        {nfts.map((nftItem, id) => (
+          <NFTCard
+            key={id}
+            nftItem={nftItem.metadata}
+            title={collection?.title}
+            listings={listings}
+          />
+        ))}
       </div>
     </div>
   )

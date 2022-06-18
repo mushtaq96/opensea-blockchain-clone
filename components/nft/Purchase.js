@@ -10,23 +10,26 @@ const style = {
   buttonText: `ml-2 text-lg font-semibold`,
 }
 
-const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
+const MakeOffer = ({ isListed, selectedNft, listings }) => {
   const [selectedMarketNft, setSelectedMarketNft] = useState()
   const [enableButton, setEnableButton] = useState(false)
 
   useEffect(() => {
     if(!selectedNft) return;
+    //console.log("SelectedNFt",selectedNft)
+    //console.log("Listings", listings)
     if (!listings || isListed === 'false') return
     ;(async () => {
       setSelectedMarketNft(
-        listings.find((marketNft) => marketNft.asset?.id === selectedNft.id)
+        listings.find((marketNft) => marketNft.asset?.id == selectedNft.id)
       )
     })()
+    //console.log("selnft", selectedNft)
   }, [selectedNft, listings, isListed])
 
   useEffect(() => {
     if (!selectedMarketNft || !selectedNft) return
-
+    console.log("selected nft useeffect",selectedNft.id)
     setEnableButton(true)
   }, [selectedMarketNft, selectedNft])
 
@@ -39,11 +42,10 @@ const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
     })
 
   const buyItem = async (
-    listingId = selectedMarketNft.id,
+    listingId = Number(selectedMarketNft.id._hex),
     quantityDesired = 1,
-    //module = marketPlaceModule
   ) => {
-    console.log(listingId, quantityDesired, module, 'david')
+    console.log("Inside buyItem", listingId, quantityDesired, module, 'david')
     // yo RAZA lets goooo!!!
     //yo Qazi, ok
     // sure okay about to run it...
@@ -51,10 +53,13 @@ const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
     // still error
     // where can i see the contract address of the marketplace module
     // in [nftId.js]
-    await module
-      .buyoutListing(listingId,quantityDesired)
+    const sdk = new ThirdwebSDK("rinkeby")
+    let listingsContract = sdk.getMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")//Marketplace address
+    listingsContract = await listingsContract.getAllListings()
+    
+    await listingsContract
+      .buyoutListing(listingId, quantityDesired)
       .catch((error) => console.error(error))
-
     confirmPurchase()
   }
 

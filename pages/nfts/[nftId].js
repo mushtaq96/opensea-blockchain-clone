@@ -22,38 +22,35 @@ const Nft = () =>{
   const [selectedNft, setSelectedNft] = useState()
   const [listings, setListings] = useState([])
   const router = useRouter()
-
+  
   const nftModule = useMemo(() => {
-    if(!provider) return
     const sdk = new ThirdwebSDK("rinkeby")
-    return sdk.getNFTCollection("0xA26c2d451BE3717973f25De833f537313B314A5a")//bored ape yatch club address
-  }, [provider])
-
-  //get all nfts in the colleciton
+    return sdk.getNFTCollection("0xA26c2d451BE3717973f25De833f537313B314A5a")//NFT collection bored ape address
+  }, [])
+  //get all nfts in the collection
   useEffect(() => {
-    if(!nftModule)return
-    ;(async()=>{
-      const nftsArray = await nftModule.getAll()
-      const selectedNftItem = nftsArray.find(
-        (nft)=> nft.id === router.query.nftId
-      )
+    if (!nftModule) return
+    ;(async () => {
+      const nfts = await nftModule.getAll()
+      console.log("NFTS",nfts)
+      let selectedNftItem = nfts.find((nft) => Number(nft.metadata.id._hex) == router.query.nftId)
+      selectedNftItem = selectedNftItem.metadata
       
       setSelectedNft(selectedNftItem)
+      console.log("selectedNftItem", selectedNftItem)
     })()
   }, [nftModule])
-  
-   const marketPlaceModule = useMemo(()=>{
-     if(!provider) return
-     const sdk = new ThirdwebSDK("rinkeby")
-     return sdk.getMarketplace('0x74E0447189A60F573e12800D1a0294aE34F42291')//marketplace address
-   },[provider])
 
-   useEffect(()=>{
-     if(!marketPlaceModule)return
-     ;(async()=>{
-      setListings(await marketPlaceModule.getAllListings())
-     })()
-   },[marketPlaceModule])
+  useEffect(() => {
+    ; (async () => {
+      const sdk = new ThirdwebSDK("rinkeby")
+
+      const listingsContract = sdk.getMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")//Marketplace address
+      const listings1 = await listingsContract.getAllListings()
+      setListings(listings1)
+      
+    })()
+  }, [])
 
   return (
     <div>
@@ -71,7 +68,6 @@ const Nft = () =>{
                 isListed={router.query.isListed}
                 selectedNft={selectedNft}
                 listings={listings}
-                marketPlaceModule={marketPlaceModule}
               />
             </div>
           </div>
