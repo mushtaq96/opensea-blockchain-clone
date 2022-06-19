@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { HiTag } from 'react-icons/hi'
 import { IoMdWallet } from 'react-icons/io'
 import toast, { Toaster } from 'react-hot-toast'
+import {useMarketplace} from "@thirdweb-dev/react"
 
 
 const style = {
@@ -14,13 +15,19 @@ const style = {
 const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
   const [selectedMarketNft, setSelectedMarketNft] = useState()
   const [enableButton, setEnableButton] = useState(false)
+  console.log(listings)
+  console.log(enableButton)
+
+  const marketPlace = useMarketplace("0x74E0447189A60F573e12800D1a0294aE34F42291")
+  //console.log("MmmmPPP",marketPlace)
 
   useEffect(() => {
     if (!listings || isListed === 'false') return
     ;(async () => {
       setSelectedMarketNft(
-        listings.find((marketNft) => marketNft.asset?.id == selectedNft.id)
+        listings.find((i) => i.asset?.id._hex == selectedNft.id._hex)
       )
+      console.log(selectedMarketNft)
     })()
   }, [selectedNft, listings, isListed])
 
@@ -39,19 +46,22 @@ const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
         color: '#fff',
       },
     })
+  
+  
+  const buyItem = async (selectedNft) => {
+    try{
+      console.log("inside buyItem",selectedNft)
+      await marketPlace.buyoutListing(Number(selectedNft.id._hex), 1)
+      alert("Asset purchased successfully")
 
-  const buyItem = async (
-    listingId = Number(selectedMarketNft.id._hex),
-    quantityDesired = 1,
-    module = marketPlaceModule
-  ) => {
-    console.log("Inside buyItem", listingId, quantityDesired, module, 'david')
-    
-    await module
-      .buyoutListing(listingId, quantityDesired)
-      .catch((error) => console.error(error))
-    confirmPurchase()
+      //window.location.reload()
+    } catch(err){
+      console.log(err)
+      alert('error purchasing asset')
+    }
   }
+    //confirmPurchase()
+  
 
   return (
     <div className="flex h-20 w-full items-center rounded-lg border border-[#151c22] bg-[#303339] px-12">
@@ -60,7 +70,7 @@ const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
         <>
           <div
             onClick={() => {
-              enableButton ? buyItem(selectedMarketNft.id, 1) : null
+              enableButton ? buyItem(selectedNft) : null
             }}
             className={`${style.button} bg-[#2081e2] hover:bg-[#42a0ff]`}
           >

@@ -4,6 +4,7 @@ import {useWeb3} from '@3rdweb/hooks'
 import {useEffect} from 'react'
 import {client} from '../lib/sanityClient'
 import toast, {Toaster} from 'react-hot-toast'
+import { useAddress, useMetamask } from '@thirdweb-dev/react'
 
 const style = {
   wrapper: ``,
@@ -13,8 +14,10 @@ const style = {
 }
 
 export default function Home(){
-  const { address, connectWallet } = useWeb3()
-
+  //const { address, connectWallet } = useWeb3()
+  const connectWithMetamask = useMetamask();
+  const address = useAddress();
+  
   const welcomeUser = (userName, toastHandler = toast) =>{
     toastHandler.success(
       `Welcome back ${userName != 'Unnamed' ? `${userName}`:''}!`,
@@ -61,7 +64,7 @@ export default function Home(){
         <div className={style.walletConnectWrapper}>
           <button 
             className={style.button} 
-            onClick={()=>connectWallet('injected')}
+            onClick={connectWithMetamask}
           >
             Connect Wallet
           </button>

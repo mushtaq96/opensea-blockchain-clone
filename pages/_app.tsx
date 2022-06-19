@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import {ThirdwebWeb3Provider} from '@3rdweb/hooks'
+import {ThirdwebProvider, ChainId} from '@thirdweb-dev/react'
 
 const supportedChainIds = [4] // represents Rinkey test network 
 const connectors = {
@@ -9,12 +10,11 @@ const connectors = {
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ThirdwebWeb3Provider
-      supportedChainIds={supportedChainIds}
-      connectors={connectors}
+    <ThirdwebProvider
+      desiredChainId={ChainId.Rinkeby}
     >
       <Component {...pageProps} />
-    </ThirdwebWeb3Provider>
+    </ThirdwebProvider>
   )
 }
 
