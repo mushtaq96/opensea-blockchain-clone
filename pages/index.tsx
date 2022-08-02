@@ -54,7 +54,6 @@ export default function Home(){
  
       <Toaster position="top-center" reverseOrder={false}/>
  
-      //conditional rendering
       {address?(
       <>
         <Header/>
